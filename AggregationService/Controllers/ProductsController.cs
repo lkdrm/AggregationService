@@ -16,9 +16,9 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetProduct(string productId)
+    public async Task<IActionResult> GetProduct(string id)
     {
-        var query = new GetAggregatedProductQuery(productId);
+        var query = new GetAggregatedProductQuery(id);
 
         var result = await _mediator.Send(query);
 
