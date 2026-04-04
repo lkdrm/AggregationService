@@ -1,7 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AggregationService.Domain.Models;
+﻿namespace AggregationService.Domain.Models;
 
 public record PriceDetails(decimal Amount, string Currency);
