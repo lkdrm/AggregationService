@@ -1,4 +1,6 @@
 using AggregationService.Application.Behaviors;
+using AggregationService.Application.Interfaces;
+using AggregationService.Infrastructure.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,10 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(LoggingBehavior<,>).Assembly);
     cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
+
+builder.Services.AddScoped<IProductClient, ProductClient>();
+builder.Services.AddScoped<IPricingClient, PricingClient>();
+builder.Services.AddScoped<IStockClient, StockClient>();
 
 var app = builder.Build();
 
