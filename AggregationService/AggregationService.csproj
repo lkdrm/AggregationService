@@ -15,4 +15,8 @@
     <ProjectReference Include="..\AggregationService.Infrastructure\AggregationService.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 </Project>
