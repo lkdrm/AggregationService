@@ -5,12 +5,18 @@ namespace AggregationService.Infrastructure.Clients;
 
 public class ProductClient : IProductClient
 {
+    private readonly HttpClient _httpClient;
     private readonly Dictionary<string, ProductItem> _products = new()
     {
         { "1", new ProductItem("1", "MacBook Pro 16", "https://example.com/macbook.jpg") },
         { "2", new ProductItem("2", "Logitech MX Master 3", "https://example.com/mouse.jpg") },
         { "3", new ProductItem("3", "Keychron K2", "https://example.com/keyboard.jpg") }
     };
+
+    public ProductClient(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
 
     public Task<ProductItem> GetProductItemAsync(string productId)
     {
