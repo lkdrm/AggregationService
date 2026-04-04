@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AggregationService.Application\AggregationService.Application.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="../AggregationService.Application/AggregationService.Application.csproj" />
+  <Project Path="../AggregationService.Domain/AggregationService.Domain.csproj" />
+  <Project Path="../AggregationService.Infrastructure/AggregationService.Infrastructure.csproj" />
   <Project Path="AggregationService.csproj" />
 </Solution>
