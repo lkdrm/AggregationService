@@ -5,12 +5,18 @@ namespace AggregationService.Infrastructure.Clients;
 
 public class PricingClient : IPricingClient
 {
+    private readonly HttpClient _httpClient;
     private readonly Dictionary<string, PriceDetails> _prices = new()
     {
         { "1", new PriceDetails(2500m, "USD") },
         { "2", new PriceDetails(99.99m, "USD") },
         { "3", new PriceDetails(120m, "USD") }
     };
+
+    public PricingClient(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
 
     public async Task<PriceDetails?> GetPriceDetailsAsync(string productId)
     {
