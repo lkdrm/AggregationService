@@ -5,4 +5,6 @@ namespace AggregationService.Application.Interfaces;
 public interface IProductClient
 {
     Task<ProductItem> GetProductItemAsync(string productId);
+
+    int GetProductsCount();
 }

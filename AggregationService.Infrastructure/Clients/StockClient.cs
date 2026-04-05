@@ -10,8 +10,21 @@ public class StockClient : IStockClient
         {"1", new StockDetails(2, true) },
         {"2", new StockDetails(0, false) },
         {"3", new StockDetails(5, true) },
-        {"4", new StockDetails(9, true) },
-        {"5", new StockDetails(0, false) },
+        {"4", new StockDetails(10, true) },
+        {"5", new StockDetails(15, true) },
+        {"6", new StockDetails(0, false) },
+        {"7", new StockDetails(8, true) },
+        {"8", new StockDetails(25, true) },
+        {"9", new StockDetails(5, true) },
+        {"10", new StockDetails(3, true) },
+        {"11", new StockDetails(0, false) },
+        {"12", new StockDetails(12, true) },
+        {"13", new StockDetails(7, true) },
+        {"14", new StockDetails(30, true) },
+        {"15", new StockDetails(50, true) },
+        {"16", new StockDetails(0, false) },
+        {"17", new StockDetails(4, true) },
+        {"18", new StockDetails(2, true) }
     };
 
     public Task<StockDetails?> GetStockDetailsAsync(string productId)

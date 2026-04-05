@@ -3,6 +3,10 @@ using AggregationService.Application.Interfaces;
 using AggregationService.Infrastructure.Clients;
 using AggregationService.Infrastructure.Handlers;
 using AggregationService.Infrastructure.Middleware;
+using AggregationService.Infrastructure.Services;
+using AggregationService.Sql;
+using AggregationService.Sql.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +27,9 @@ builder.Services.AddScoped<IStockClient, StockClient>();
 builder.Services.AddScoped<IPricingClient, PricingClient>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("ProductDb"));
+builder.Services.AddHostedService<ProductService>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
 app.UseExceptionHandler();
