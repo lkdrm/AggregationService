@@ -3,8 +3,13 @@ using AggregationService.Domain.Models;
 
 namespace AggregationService.Infrastructure.Clients;
 
+/// <summary>
+/// In-memory implementation of <see cref="IProductClient"/> that provides
+/// a static catalog of product items for development and testing purposes.
+/// </summary>
 public class ProductClient : IProductClient
 {
+    // Static in-memory product catalog keyed by product ID
     private readonly Dictionary<string, ProductItem> _products = new()
     {
         { "1", new ProductItem("1", "MacBook Pro 16", "https://example.com/macbook.jpg") },
@@ -27,6 +32,14 @@ public class ProductClient : IProductClient
         { "18", new ProductItem("18", "Herman Miller Aeron", "https://example.com/aeron-chair.jpg") }
     };
 
+    /// <summary>
+    /// Retrieves a <see cref="ProductItem"/> by its unique identifier.
+    /// </summary>
+    /// <param name="productId">The unique identifier of the product to retrieve.</param>
+    /// <returns>A completed <see cref="Task{ProductItem}"/> containing the matching product.</returns>
+    /// <exception cref="KeyNotFoundException">
+    /// Thrown when no product with the given <paramref name="productId"/> exists in the catalog.
+    /// </exception>
     public Task<ProductItem> GetProductItemAsync(string productId)
     {
         if (_products.TryGetValue(productId, out var productItem))
@@ -37,5 +50,9 @@ public class ProductClient : IProductClient
         throw new KeyNotFoundException($"Product with ID{productId} not found");
     }
 
+    /// <summary>
+    /// Returns the total number of products available in the catalog.
+    /// </summary>
+    /// <returns>The count of products in the in-memory catalog.</returns>
     public int GetProductsCount() => _products.Count;
 }

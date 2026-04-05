@@ -7,17 +7,36 @@ using Microsoft.Extensions.Logging;
 
 namespace AggregationService.Infrastructure.Services;
 
+/// <summary>
+/// A background service responsible for synchronizing product data from external sources
+/// (product, pricing, and stock clients) into the local SQL read model.
+/// </summary>
 public class ProductService : BackgroundService
 {
     private readonly ILogger<ProductService> _logger;
     private readonly IServiceProvider _serviceProvider;
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="ProductService"/>.
+    /// </summary>
+    /// <param name="logger">Logger instance for diagnostic output.</param>
+    /// <param name="serviceProvider">
+    /// Root service provider used to create scoped services per execution cycle.
+    /// </param>
     public ProductService(ILogger<ProductService> logger, IServiceProvider serviceProvider)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
     }
 
+    /// <summary>
+    /// Executes the background sync logic when the hosted service starts.
+    /// Iterates over all products and aggregates data from the product, pricing,
+    /// and stock clients, then upserts each entry into the SQL read model.
+    /// </summary>
+    /// <param name="stoppingToken">
+    /// Token triggered when the host is performing a graceful shutdown.
+    /// </param>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Product Service is starting...");
@@ -37,6 +56,7 @@ public class ProductService : BackgroundService
 
                 var product = productClient.GetProductItemAsync(i.ToString());
                 var stock = stockClient.GetStockDetailsAsync(i.ToString());
+
                 var price = Task.Run(async () =>
                 {
                     try

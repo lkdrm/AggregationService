@@ -4,8 +4,16 @@ using Polly;
 
 namespace AggregationService.Infrastructure.Clients;
 
+/// <summary>
+/// A mock implementation of <see cref="IPricingClient"/> that provides simulated pricing data
+/// with Polly-backed retry logic to mimic real-world transient failures.
+/// </summary>
 public class PricingClient : IPricingClient
 {
+    /// <summary>
+    /// In-memory store mapping product IDs to their corresponding price details.
+    /// Each entry contains the price amount and currency code.
+    /// </summary>
     private readonly Dictionary<string, PriceDetails> _prices = new()
     {
         { "1", new PriceDetails(2500m, "USD") },
@@ -28,6 +36,17 @@ public class PricingClient : IPricingClient
         { "18", new PriceDetails(1600m, "USD") }
     };
 
+    /// <summary>
+    /// Retrieves the price details for the specified product ID.
+    /// Applies a Polly retry policy to handle transient failures, retrying up to 5 times
+    /// with a 100 ms delay between attempts. A 25% simulated failure rate and a random
+    /// processing delay are used to mimic an unreliable external pricing service.
+    /// </summary>
+    /// <param name="productId">The unique identifier of the product.</param>
+    /// <returns>
+    /// A <see cref="PriceDetails"/> instance if the product ID is found;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
     public async Task<PriceDetails?> GetPriceDetailsAsync(string productId)
     {
         var retryPolicy = Policy

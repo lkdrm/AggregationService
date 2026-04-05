@@ -18,16 +18,22 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddMediatR(cfg =>
 {
+    // Register all handlers from the Application assembly and attach the logging pipeline decorator.
     cfg.RegisterServicesFromAssembly(typeof(LoggingBehavior<,>).Assembly);
     cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
 
+// Register infrastructure clients and exception handling.
 builder.Services.AddScoped<IProductClient, ProductClient>();
 builder.Services.AddScoped<IStockClient, StockClient>();
 builder.Services.AddScoped<IPricingClient, PricingClient>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+// Register EF Core with an in-memory database for the SQL read model.
 builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("ProductDb"));
+
+// Register the background sync service and the SQL-backed product repository.
 builder.Services.AddHostedService<ProductService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
