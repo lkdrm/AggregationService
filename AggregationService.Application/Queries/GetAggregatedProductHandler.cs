@@ -22,26 +22,30 @@ public class GetAggregatedProductHandler : IRequestHandler<GetAggregatedProductQ
 
     async Task<AggregatedProduct> IRequestHandler<GetAggregatedProductQuery, AggregatedProduct>.Handle(GetAggregatedProductQuery request, CancellationToken cancellationToken)
     {
-        var price = _pricingClient.GetPriceDetailsAsync(request.Id);
+        var price = GetPriceDetailsAsync(request.Id);
         var product = _productClient.GetProductItemAsync(request.Id);
         var stock = _stockClient.GetStockDetailsAsync(request.Id);
 
-        PriceDetails priceData;
+        await Task.WhenAll(product, price, stock);
 
-        try
-        {
-            await Task.WhenAll(product, price, stock);
-            priceData = await price;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning($"Caused error during the process handling: {ex.Message}");
-            priceData = null;
-        }
-
+        var priceData = await price;
         var productData = await product;
         var stockData = await stock;
 
         return new AggregatedProduct(request.Id, productData.Name, productData.ImageUrl, priceData, stockData);
+    }
+
+    private async Task<PriceDetails?> GetPriceDetailsAsync(string id)
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            return await _pricingClient.GetPriceDetailsAsync(id).WaitAsync(cts.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Failed to fetch price, applying fallback. Error: {ex.Message}");
+            return null;
+        }
     }
 }
