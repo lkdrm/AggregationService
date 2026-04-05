@@ -47,6 +47,11 @@ docker run -d -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Development --name my-api a
 Open your browser and navigate to the Swagger UI:
 👉 http://localhost:8080/swagger
 
+Or if its local:
+👉 http://localhost:XXXX/swagger
+
+Where XXXX u can get from running console
+
 ## 🧪 Testing
 The project includes comprehensive unit tests focusing on business logic and handler behaviors.
 To run the tests locally:
