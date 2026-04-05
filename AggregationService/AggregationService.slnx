@@ -2,5 +2,6 @@
   <Project Path="../AggregationService.Application/AggregationService.Application.csproj" />
   <Project Path="../AggregationService.Domain/AggregationService.Domain.csproj" />
   <Project Path="../AggregationService.Infrastructure/AggregationService.Infrastructure.csproj" />
+  <Project Path="../AggregationService.Sql/AggregationService.Sql.csproj" Id="f4a07236-6044-44a0-8488-7ab6dd78aee6" />
   <Project Path="AggregationService.csproj" />
 </Solution>

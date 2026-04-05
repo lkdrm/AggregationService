@@ -16,6 +16,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\AggregationService.Application\AggregationService.Application.csproj" />
+		<ProjectReference Include="..\AggregationService.Sql\AggregationService.Sql.csproj" />
 	</ItemGroup>
 
 </Project>
