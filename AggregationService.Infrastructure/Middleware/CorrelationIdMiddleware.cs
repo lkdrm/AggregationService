@@ -23,7 +23,7 @@ public class CorrelationIdMiddleware
         }
 
         context.Response.Headers[CorrelationIdHeader] = correlationId;
-
+        context.Items["CorrelationId"] = correlationId.ToString();
         using (_logger.BeginScope($"CorrelationId: {correlationId}"))
         {
             await _next(context);

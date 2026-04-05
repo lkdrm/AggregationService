@@ -1,6 +1,7 @@
 using AggregationService.Application.Behaviors;
 using AggregationService.Application.Interfaces;
 using AggregationService.Infrastructure.Clients;
+using AggregationService.Infrastructure.Handlers;
 using AggregationService.Infrastructure.Middleware;
 using Polly;
 
@@ -20,11 +21,14 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddScoped<IProductClient, ProductClient>();
 builder.Services.AddScoped<IStockClient, StockClient>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddHttpClient<IPricingClient, PricingClient>().AddTransientHttpErrorPolicy(policy =>
 policy.WaitAndRetryAsync(5, _ => TimeSpan.FromMilliseconds(100)));
 
 var app = builder.Build();
+app.UseExceptionHandler();
 app.UseMiddleware<CorrelationIdMiddleware>();
 
 // Configure the HTTP request pipeline.
