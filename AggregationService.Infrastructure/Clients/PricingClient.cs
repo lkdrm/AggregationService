@@ -1,11 +1,11 @@
 ﻿using AggregationService.Application.Interfaces;
 using AggregationService.Domain.Models;
+using Polly;
 
 namespace AggregationService.Infrastructure.Clients;
 
 public class PricingClient : IPricingClient
 {
-    private readonly HttpClient _httpClient;
     private readonly Dictionary<string, PriceDetails> _prices = new()
     {
         { "1", new PriceDetails(2500m, "USD") },
@@ -13,25 +13,31 @@ public class PricingClient : IPricingClient
         { "3", new PriceDetails(120m, "USD") }
     };
 
-    public PricingClient(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
     public async Task<PriceDetails?> GetPriceDetailsAsync(string productId)
     {
-        await Task.Delay(Random.Shared.Next(500, 801));
+        var retryPolicy = Policy
+            .Handle<Exception>()
+            .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromMilliseconds(100),
+                onRetry: (exception, timeSpan, retryCount, context) =>
+                {
+                    Console.WriteLine($"[Polly] Retry {retryCount} for PricingClient due to: {exception.Message}");
+                });
 
-        if (Random.Shared.Next(1, 101) <= 25)
+        return await retryPolicy.ExecuteAsync(async () =>
         {
-            throw new Exception("Pricing service failure!");
-        }
+            await Task.Delay(Random.Shared.Next(500, 801));
 
-        if (_prices.TryGetValue(productId, out var priceDetails))
-        {
-            return priceDetails;
-        }
+            if (Random.Shared.Next(1, 101) <= 25)
+            {
+                throw new Exception("Pricing service failure!");
+            }
 
-        return null;
+            if (_prices.TryGetValue(productId, out var priceDetails))
+            {
+                return priceDetails;
+            }
+
+            return null;
+        });
     }
 }

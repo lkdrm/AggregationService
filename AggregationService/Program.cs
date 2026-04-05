@@ -3,7 +3,6 @@ using AggregationService.Application.Interfaces;
 using AggregationService.Infrastructure.Clients;
 using AggregationService.Infrastructure.Handlers;
 using AggregationService.Infrastructure.Middleware;
-using Polly;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,11 +20,9 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddScoped<IProductClient, ProductClient>();
 builder.Services.AddScoped<IStockClient, StockClient>();
+builder.Services.AddScoped<IPricingClient, PricingClient>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-
-builder.Services.AddHttpClient<IPricingClient, PricingClient>().AddTransientHttpErrorPolicy(policy =>
-policy.WaitAndRetryAsync(5, _ => TimeSpan.FromMilliseconds(100)));
 
 var app = builder.Build();
 app.UseExceptionHandler();

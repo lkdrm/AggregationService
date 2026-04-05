@@ -5,7 +5,6 @@ namespace AggregationService.Infrastructure.Clients;
 
 public class StockClient : IStockClient
 {
-    private readonly HttpClient _httpClient;
     private readonly Dictionary<string, StockDetails> _stockDetails = new()
     {
         {"1", new StockDetails(2, true) },
@@ -14,11 +13,6 @@ public class StockClient : IStockClient
         {"4", new StockDetails(9, true) },
         {"5", new StockDetails(0, false) },
     };
-
-    public StockClient(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
 
     public Task<StockDetails?> GetStockDetailsAsync(string productId)
     {
