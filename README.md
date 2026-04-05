@@ -42,11 +42,12 @@ Run the Container:
 
 Bash
 docker run -d -p 8080:8080 -e ASPNETCORE_ENVIRONMENT=Development --name my-api aggregation-api
-Access the API:
+
+## Access the API:
 Open your browser and navigate to the Swagger UI:
 👉 http://localhost:8080/swagger
 
-##🧪 Testing
+## 🧪 Testing
 The project includes comprehensive unit tests focusing on business logic and handler behaviors.
 To run the tests locally:
 
