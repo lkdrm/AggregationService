@@ -2,6 +2,7 @@ using AggregationService.Application.Interfaces;
 using AggregationService.Application.Queries;
 using AggregationService.Domain.Models;
 using MediatR;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
@@ -14,14 +15,21 @@ namespace AggregationService.Tests.Queries;
 public class GetAggregatedProductHandlerTests
 {
     private readonly Mock<IProductRepository> _productRepositoryMock;
+    private readonly Mock<IMemoryCache> _memoryCacheMock;
     private readonly IRequestHandler<GetAggregatedProductQuery, AggregatedProduct> _handler;
 
     public GetAggregatedProductHandlerTests()
     {
         _productRepositoryMock = new Mock<IProductRepository>();
+        _memoryCacheMock = new Mock<IMemoryCache>();
+
+        // Configure mock to handle Set extension method gracefully
+        _memoryCacheMock.DefaultValue = DefaultValue.Mock;
+
         _handler = new GetAggregatedProductHandler(
             NullLogger<GetAggregatedProductHandler>.Instance,
-            _productRepositoryMock.Object);
+            _productRepositoryMock.Object,
+            _memoryCacheMock.Object);
     }
 
     [Fact]
@@ -35,6 +43,18 @@ public class GetAggregatedProductHandlerTests
             "https://example.com/image.jpg",
             new PriceDetails(9.99m, "USD"),
             new StockDetails(42, true));
+
+        var cacheEntry = new Mock<ICacheEntry>();
+        cacheEntry.SetupProperty(x => x.AbsoluteExpirationRelativeToNow);
+        cacheEntry.SetupProperty(x => x.Value);
+
+        _memoryCacheMock
+            .Setup(c => c.TryGetValue(It.IsAny<object>(), out It.Ref<object?>.IsAny))
+            .Returns(false);
+
+        _memoryCacheMock
+            .Setup(c => c.CreateEntry(It.IsAny<object>()))
+            .Returns(cacheEntry.Object);
 
         _productRepositoryMock
             .Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
@@ -59,6 +79,18 @@ public class GetAggregatedProductHandlerTests
     {
         // Arrange
         const string productId = "non-existent-id";
+
+        var cacheEntry = new Mock<ICacheEntry>();
+        cacheEntry.SetupProperty(x => x.AbsoluteExpirationRelativeToNow);
+        cacheEntry.SetupProperty(x => x.Value);
+
+        _memoryCacheMock
+            .Setup(c => c.TryGetValue(It.IsAny<object>(), out It.Ref<object?>.IsAny))
+            .Returns(false);
+
+        _memoryCacheMock
+            .Setup(c => c.CreateEntry(It.IsAny<object>()))
+            .Returns(cacheEntry.Object);
 
         _productRepositoryMock
             .Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
