@@ -41,6 +41,20 @@ public class ProductService : BackgroundService
     {
         _logger.LogInformation("Product Service is starting...");
 
+        await SyncAllProductsAsync(stoppingToken);
+
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
+
+        while (await timer.WaitForNextTickAsync(stoppingToken))
+        {
+            await SyncAllProductsAsync(stoppingToken);
+        }
+    }
+
+    private async Task SyncAllProductsAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("Starting product sync...");
+
         try
         {
             using var scope = _serviceProvider.CreateAsyncScope();
@@ -52,7 +66,7 @@ public class ProductService : BackgroundService
 
             for (int i = 1; i <= productClient.GetProductsCount(); i++)
             {
-                _logger.LogInformation($"Sync product {i} with SQL Model...");
+                _logger.LogInformation("Syncing product {ProductId} with SQL Model", i);
 
                 var product = productClient.GetProductItemAsync(i.ToString());
                 var stock = stockClient.GetStockDetailsAsync(i.ToString());
@@ -66,7 +80,7 @@ public class ProductService : BackgroundService
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning($"Failed to fetch price for {i.ToString()}, applying fallback. Error: {ex.Message}");
+                        _logger.LogWarning("Failed to fetch price for {ProductId}, applying fallback. Error: {ErrorMessage}", i, ex.Message);
                         return null;
                     }
                 });
@@ -98,11 +112,11 @@ public class ProductService : BackgroundService
             }
 
             await dbContext.SaveChangesAsync(stoppingToken);
-            _logger.LogInformation("SQL server updated");
+            _logger.LogInformation("SQL read model updated successfully");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while update SQL Read Model");
+            _logger.LogError(ex, "An error occurred while updating the SQL read model");
         }
     }
 }

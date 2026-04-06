@@ -29,6 +29,7 @@ builder.Services.AddScoped<IStockClient, StockClient>();
 builder.Services.AddScoped<IPricingClient, PricingClient>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+builder.Services.AddMemoryCache();
 
 // Register EF Core with an in-memory database for the SQL read model.
 builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("ProductDb"));

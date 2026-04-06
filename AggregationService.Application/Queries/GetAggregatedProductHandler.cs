@@ -1,6 +1,7 @@
 ﻿using AggregationService.Application.Interfaces;
 using AggregationService.Domain.Models;
 using MediatR;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace AggregationService.Application.Queries;
@@ -13,16 +14,18 @@ public class GetAggregatedProductHandler : IRequestHandler<GetAggregatedProductQ
 {
     private readonly ILogger<GetAggregatedProductHandler> _logger;
     private readonly IProductRepository _productRepository;
+    private readonly IMemoryCache _memoryCache;
 
     /// <summary>
     /// Initializes a new instance of <see cref="GetAggregatedProductHandler"/>.
     /// </summary>
     /// <param name="logger">Logger used for diagnostic output.</param>
     /// <param name="productRepository">The repository used to query aggregated product data.</param>
-    public GetAggregatedProductHandler(ILogger<GetAggregatedProductHandler> logger, IProductRepository productRepository)
+    public GetAggregatedProductHandler(ILogger<GetAggregatedProductHandler> logger, IProductRepository productRepository, IMemoryCache memoryCache)
     {
         _logger = logger;
         _productRepository = productRepository;
+        _memoryCache = memoryCache;
     }
 
     /// <summary>
@@ -36,10 +39,25 @@ public class GetAggregatedProductHandler : IRequestHandler<GetAggregatedProductQ
     /// </exception>
     async Task<AggregatedProduct> IRequestHandler<GetAggregatedProductQuery, AggregatedProduct>.Handle(GetAggregatedProductQuery request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation($"Fetching product {request.Id} from SQL Model");
+        var cache = $"product_{request.Id}";
+        if (_memoryCache.TryGetValue(cache, out AggregatedProduct? memory))
+        {
+            _logger.LogInformation("Memory cache hit for product: {ProductId}", request.Id);
+            return memory!;
+        }
+
+        _logger.LogInformation("Fetching product {ProductId} from SQL Model", request.Id);
 
         var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
 
-        return product ?? throw new KeyNotFoundException($"Product with id {request.Id}, not found.");
+        if (product == null)
+        {
+
+            throw new KeyNotFoundException($"Product with id {request.Id}, not found.");
+        }
+
+        _memoryCache.Set(cache, product, TimeSpan.FromSeconds(30));
+
+        return product;
     }
 }

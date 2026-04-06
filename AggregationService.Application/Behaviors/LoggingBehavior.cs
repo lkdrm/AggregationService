@@ -33,13 +33,13 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
     /// <returns>The response produced by the inner handler.</returns>
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        _logger.LogInformation($"Starting request {typeof(TRequest).Name}");
+        _logger.LogInformation("Starting request {RequestName}", typeof(TRequest).Name);
         var timer = Stopwatch.StartNew();
 
         var response = await next(cancellationToken);
 
         timer.Stop();
-        _logger.LogInformation($"Completed request {typeof(TRequest).Name}, in {timer.ElapsedMilliseconds}");
+        _logger.LogInformation("Completed request {RequestName}, in {ElapsedMs}", typeof(TRequest).Name, timer.ElapsedMilliseconds);
 
         return response;
     }

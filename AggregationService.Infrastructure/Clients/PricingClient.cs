@@ -1,5 +1,6 @@
 ﻿using AggregationService.Application.Interfaces;
 using AggregationService.Domain.Models;
+using Microsoft.Extensions.Logging;
 using Polly;
 
 namespace AggregationService.Infrastructure.Clients;
@@ -36,6 +37,13 @@ public class PricingClient : IPricingClient
         { "18", new PriceDetails(1600m, "USD") }
     };
 
+    private readonly ILogger<PricingClient> _logger;
+
+    public PricingClient(ILogger<PricingClient> logger)
+    {
+        _logger = logger;
+    }
+
     /// <summary>
     /// Retrieves the price details for the specified product ID.
     /// Applies a Polly retry policy to handle transient failures, retrying up to 5 times
@@ -54,7 +62,7 @@ public class PricingClient : IPricingClient
             .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromMilliseconds(100),
                 onRetry: (exception, timeSpan, retryCount, context) =>
                 {
-                    Console.WriteLine($"[Polly] Retry {retryCount} for PricingClient due to: {exception.Message}");
+                    _logger.LogWarning($"[Polly] Retry {retryCount} for PricingClient due to: {exception.Message}");
                 });
 
         return await retryPolicy.ExecuteAsync(async () =>
